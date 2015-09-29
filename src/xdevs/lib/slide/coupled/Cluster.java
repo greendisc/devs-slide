@@ -18,34 +18,14 @@
  *  - José Luis Risco Martín
  *  - Marina Zapater Sancho
  */
-package xdevs.lib.slide.main;
+package xdevs.lib.slide.coupled;
 
-import xdevs.core.modeling.Atomic;
+import xdevs.core.modeling.Coupled;
 
 /**
  *
  * @author José Luis Risco Martín <jlrisco at ucm.es>
  */
-public class VirtualMachine extends Atomic {
-
-    @Override
-    public void initialize() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void deltint() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void deltext(double d) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void lambda() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
+public class Cluster extends Coupled {
+    // I have Racks
 }

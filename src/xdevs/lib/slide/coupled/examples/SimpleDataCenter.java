@@ -18,13 +18,22 @@
  *  - José Luis Risco Martín
  *  - Marina Zapater Sancho
  */
-package xdevs.lib.slide.main;
+package xdevs.lib.slide.coupled.examples;
 
+import java.util.LinkedList;
 import xdevs.core.modeling.Coupled;
+import xdevs.core.simulation.Coordinator;
 
 /**
  *
  * @author José Luis Risco Martín <jlrisco at ucm.es>
  */
-public class Cluster extends Coupled {
+public class SimpleDataCenter extends Coupled {
+    // I have clusters
+    public static void main(String args[]) {
+        SimpleDataCenter dataCenter = new SimpleDataCenter();
+        Coordinator devsSimulator = new Coordinator(dataCenter);
+        devsSimulator.initialize();
+        devsSimulator.simulate(600.0);
+    }
 }

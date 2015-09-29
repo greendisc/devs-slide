@@ -18,14 +18,42 @@
  *  - José Luis Risco Martín
  *  - Marina Zapater Sancho
  */
-package xdevs.lib.slide.main;
+package xdevs.lib.slide.atomic;
 
-import xdevs.core.modeling.Coupled;
+import xdevs.core.modeling.Atomic;
 
 /**
  *
  * @author José Luis Risco Martín <jlrisco at ucm.es>
  */
-public class Rack extends Coupled {
+public class Host extends Atomic {
+
+    public enum HostPhase {ON, SUSPENDED, OFF, POWERING_ON, SUSPENDING, POWERING_OFF, FAILED}
     
+    public Host(String name, double processingTime) {
+        super(name);
+        /*super.addInPort(iIn);
+         super.addOutPort(oOut);
+         this.processingTime = processingTime;*/
+    }
+
+    @Override
+    public void initialize() {
+        super.passivateIn(HostPhase.OFF.toString());
+    }
+
+    @Override
+    public void deltint() {
+        super.passivateIn(HostPhase.OFF.toString());
+    }
+
+    @Override
+    public void deltext(double d) {
+        super.passivateIn(HostPhase.OFF.toString());
+    }
+
+    @Override
+    public void lambda() {
+    }
+
 }
