@@ -1,0 +1,56 @@
+{    
+    "DataCenter" : [ 
+        {
+            "name" : "dc01", 
+            "Chiller" : {
+                "type" : "PlantBChiller",
+                "cold-water-temp" : 18.3
+            },
+            "Pump" : "ASHRAEPump",
+            "Room" : "MGHPCCPod",
+            "IRC" : "APC",
+            "IT" : [ {
+                "RackIRCCouple" : {
+                    "name" : "rc1",
+                    "equipment" : [ 
+                        {
+                            "Rack" : {
+                                "name" : "rack1",
+                                "Servers" : [
+                                    ["s1", "solana"],
+                                    ["s2", "solana"],
+                                    ["s3", "solana"]
+                                ]
+                            }
+                        },
+                        {
+                            "Rack" : {
+                                "name" : "rack2",
+                                "Servers" : [
+                                    ["s4", "solana"],
+                                    ["s5", "solana"],
+                                    ["s6", "solana"]
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }]
+        }
+    ],
+    "RoomParams" : { 
+        "IRCAirTemp" : [
+            ["rc1", 22]
+        ],
+        "ServerFanSpeed" : [
+            ["rack1", "s1", 1800],
+            ["rack1", "s2", 1800]
+        ]
+    },
+    "Workload" : {
+        "ServerPower" : [
+            ["rack1", "s1", 120.0, 60.0],
+            ["rack1", "s2", 120.0, 60.0]
+        ] 
+    }
+}
