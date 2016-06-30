@@ -11,109 +11,33 @@
 
 bool DCParser::parseCmdLineArgs(int argc, char *argv[], CmdLineArgs &parsedArgs)
 {
-    try {
-        TCLAP::CmdLine cmd("DC power and energy simulator", ' ', "0.9");
-
-        TCLAP::ValueArg<std::string> configFile("c","config","DC configuration file",true,
-                                                "config.txt","string");
-        cmd.add(configFile);
-        
-        TCLAP::ValueArg<std::string> weatherFile("w","weather","DC weather info file",true,
-                                                 "weather.txt","string");
-        cmd.add(weatherFile);
-
-        TCLAP::ValueArg<std::string> powerFile("e","power","DC power summary output file",true,
-                                                 "power.txt","string");
-        cmd.add(powerFile);
-
-        TCLAP::ValueArg<int> port("p","port","UDP receiver port",true,1234,"integer");
-        cmd.add(port);
-
-        TCLAP::ValueArg<time_t> baseTime("t","time","Simulator base time",true,0,"time");
-        cmd.add(baseTime);
-        
-        TCLAP::ValueArg<time_t> firstSubmit("f","first","First real job submission time",false,0,"time");
-        cmd.add(firstSubmit);
-
-        // Off-line mode
-        TCLAP::SwitchArg offlineSwitch("o","offline","DCsim runs in offline mode", false);
-        cmd.add(offlineSwitch);
-
-        TCLAP::ValueArg<std::string> jobLogger("j", "joblogger", "File where job allocations are logged",
-                                               false, "joblogger.txt", "string");
-        cmd.add(jobLogger);
-
-        TCLAP::ValueArg<std::string> allocPath("a", "allocpath", "File where job allocations are logged",
-                                               false, "/tmp/", "string");
-        cmd.add(allocPath);
-
-        TCLAP::ValueArg<std::string> coolPolicy("y", "coolpolicy", "Cooling policy",
-                                               false, "/tmp/", "string");
-        cmd.add(coolPolicy);
-        
-        //Switch example
-        //TCLAP::SwitchArg reverseSwitch("r","reverse","Print name backwards", cmd, false);
-        
-        // Parse the argv array.
-        cmd.parse( argc, argv );
-        
-        // Get the value parsed by each arg and fill-in struct. 
-        parsedArgs.configFile = configFile.getValue();
-        parsedArgs.weatherFile = weatherFile.getValue();
-        parsedArgs.powerOutFile = powerFile.getValue();
-        parsedArgs.port = port.getValue();
-        parsedArgs.baseTime = baseTime.getValue();
-        parsedArgs.offline = offlineSwitch.getValue();
-        if (parsedArgs.offline){
-            if(jobLogger.getValue().empty()){
-                LOG_FATAL << "Offline switch is on, but no joblogger file provided";
-            }
-            parsedArgs.jobLoggerFile = jobLogger.getValue();
-        }
-        if (!firstSubmit.getValue()){
-            parsedArgs.firstSubmit = FIRST_SUBMISSION_TIME;
-        }
-        else {
-            parsedArgs.firstSubmit = firstSubmit.getValue();
-        }
-        if (allocPath.getValue().empty()){
-            parsedArgs.allocPath.clear();
-        }
-        else {
-            parsedArgs.allocPath = allocPath.getValue();
-        }
-        if (coolPolicy.getValue().empty()){
-            parsedArgs.coolPolicy = "fixed";
-        }
-        else {
-            parsedArgs.coolPolicy = coolPolicy.getValue();
-        }
-    }
-    catch (TCLAP::ArgException &e) {
-        LOG_FATAL << "Error parsing cmd line args: " << e.error()
-                  << " for arg " << e.argId();
-    }
-    
+	// Get the value parsed by each arg and fill-in struct.
+	parsedArgs.configFile = "test/ConfigFile.xml";
+	parsedArgs.weatherFile = "WeatherFile.txt";
+	parsedArgs.powerOutFile = "PowerFile.txt";
+	parsedArgs.port = 4321;
+	parsedArgs.baseTime = 1316242565;
+	parsedArgs.offline = false;
+	if (parsedArgs.offline){
+		parsedArgs.jobLoggerFile = "JobLogger.txt";
+	}
+	parsedArgs.firstSubmit = FIRST_SUBMISSION_TIME;
+	parsedArgs.allocPath.clear();
+	parsedArgs.coolPolicy = "fixed";
     return true;
 }
 
-void DCParser::parseDCConfig(json::value &config, DCSimulator::DCParams &layout)
+void DCParser::parseDCConfig(DCSimulator::DCParams &layout)
 {
-    if (config.is_null()){
-        LOG_FATAL << "DC json configuration is null. Cannot parse";
-    }
-    if (!config.has_field(U("DataCenter"))){
-        LOG_FATAL << "No data center layout configuration";
-    }
-        
-    json::array &dcArray = config[U("DataCenter")].as_array();
-    if (dcArray.size() != 1){
-        LOG_FATAL << "Data Center field of size " << dcArray.size()
-                  << " is not supported at the moment. Exiting.";
-    }
+	xercesc::XMLPlatformUtils::Initialize();
+	xercesc::XercesDOMParser* parser = new xercesc::XercesDOMParser();
+    parser->parse("test/ConfigFile.xml");
+    xercesc::DOMDocument* doc = parser->getDocument();
+    xercesc::DOMNode* dataCenter = doc->getFirstChild();
+
     VLOG_1 << "Got a Data Center layout. Going to parse it";
 
-    bool res = DCParser::parseLayout(dcArray.at(0), layout);
+    bool res = DCParser::parseLayout(dataCenter, layout);
     if (!res){
         LOG_FATAL << "Could not parse DC layout. Exiting...";
     }
@@ -125,58 +49,58 @@ void DCParser::parseDCConfig(json::value &config, DCSimulator::DCParams &layout)
            << " -- Pump= " << layout.pumpType << std::endl
            << " -- Room= " << layout.roomType << std::endl
            << " -- IRC= " << layout.ircType ;
-    
+    xercesc::XMLPlatformUtils::Terminate();
 }
 
-bool DCParser::parseLayout (json::value &layout, DCSimulator::DCParams &params)
-{    
+bool DCParser::parseLayout (xercesc::DOMNode* xmlDataCenter, DCSimulator::DCParams &params) {
     // DC Name
-    if (!layout.has_field(U("name"))){
-        LOG_WARNING << "No name field!";
-        return false;
-    }
-    params.dcName = layout[U("name")].as_string();
+	xercesc::DOMNode* xmlName = DCParser::xmlDameNodoHijo(xmlDataCenter, "name");
+	params.dcName = xercesc::XMLString::transcode(xmlName->getFirstChild()->getNodeValue());
 
     // Chiller --> external parsing
-    if (!layout.has_field(U("Chiller"))){
+	xercesc::DOMNode* xmlChiller = DCParser::xmlDameNodoHijo(xmlDataCenter, "Chiller");
+    if (xmlChiller == 0){
         LOG_WARNING << "No name chiller!";
         return false;
     }
-    json::value chiller = layout[U("Chiller")];
-    if (!parseChiller(chiller, params.chiller)){
+    if (!parseChiller(xmlChiller, params.chiller)){
         LOG_WARNING << "Wrong chiller config...";
         return false;
     }
 
     // Pump
-    if (!layout.has_field(U("Pump"))){
+    xercesc::DOMNode* xmlPump = DCParser::xmlDameNodoHijo(xmlDataCenter, "Pump");
+    if (xmlPump==0){
         LOG_WARNING << "No pump field!";
         return false;
     }
-    params.pumpType = layout[U("Pump")].as_string();
+    params.pumpType = xercesc::XMLString::transcode(xmlPump->getFirstChild()->getNodeValue());
 
     // Room
-    if (!layout.has_field(U("Room"))){
+    xercesc::DOMNode* xmlRoom = DCParser::xmlDameNodoHijo(xmlDataCenter, "Room");
+    if (xmlRoom==0) {
         LOG_WARNING << "No room field!";
         return false;
     }
-    params.roomType = layout[U("Room")].as_string();
+    params.roomType = xercesc::XMLString::transcode(xmlRoom->getFirstChild()->getNodeValue());
 
     // IRC (optional)
-    if (layout.has_field(U("IRC"))){
+    xercesc::DOMNode* xmlIRC = DCParser::xmlDameNodoHijo(xmlDataCenter, "IRC");
+    if (xmlIRC==0) {
         LOG_INFO << "IRC field, DC contains IRC coolers";
-        params.ircType = layout[U("IRC")].as_string();
+        params.ircType = xercesc::XMLString::transcode(xmlIRC->getFirstChild()->getNodeValue());
     }
 
     // IT --> external parsing
-    if (!layout.has_field(U("IT"))){
+    xercesc::DOMNode* xmlIT = DCParser::xmlDameNodoHijo(xmlDataCenter, "IT");
+    if (xmlIT==0) {
         LOG_WARNING << "No IT field!";
         return false;
     }
-    json::array itArray = layout[U("IT")].as_array();
-    if (!params.ircType.empty()){
+    xercesc::DOMNodeList* xmlITs = xmlDataCenter->getOwnerDocument()->getElementsByTagName(xercesc::XMLString::transcode("IT"));
+    if (xmlITs->getLength()>0){
         VLOG_2 << "Got the IT array, and it should have IRCs";
-        if (!parseRacksAndIRCs(itArray, params.rackIRC)){
+        if (!parseRacksAndIRCs(xmlITs, params.rackIRC)){
             LOG_WARNING << "Wrong IT config...";
             return false;
         }
@@ -186,49 +110,43 @@ bool DCParser::parseLayout (json::value &layout, DCSimulator::DCParams &params)
     return false;    
 }
 
-bool DCParser::parseChiller(json::value &config, Chiller::ChillerParams &chiller)
-{
-    if (!config.has_field(U("type"))){
+bool DCParser::parseChiller(xercesc::DOMNode* xmlChiller, Chiller::ChillerParams &chiller) {
+	xercesc::DOMNode* xmlType = DCParser::xmlDameNodoHijo(xmlChiller, "type");
+    if (xmlType==0){
         LOG_WARNING << "No chiller type!";
         return false;
     }
-    chiller.chillerType = config[U("type")].as_string();
+    chiller.chillerType = xercesc::XMLString::transcode(xmlType->getFirstChild()->getNodeValue());
     
-    if (!config.has_field(U("cold-water-temp"))){
+    xercesc::DOMNode* xmlColdWaterTemp = DCParser::xmlDameNodoHijo(xmlChiller, "cold-water-temp");
+    if (xmlColdWaterTemp==0){
         LOG_WARNING << "No chiller cold water temperature!";
         return false;
     }
-    chiller.coldWaterTemp = config[U("cold-water-temp")].as_double();
+    chiller.coldWaterTemp = std::stod(xercesc::XMLString::transcode(xmlColdWaterTemp->getFirstChild()->getNodeValue()));
 
-    if (!config.has_field(U("outdoor-temp"))){
+    xercesc::DOMNode* xmlOutdoorTemp = DCParser::xmlDameNodoHijo(xmlChiller, "outdoor-temp");
+    if (xmlOutdoorTemp==0) {
         LOG_WARNING << "No outdoor temperature!";
         return false;
     }
-    chiller.outdoorTemp = config[U("outdoor-temp")].as_double();
+    chiller.outdoorTemp = std::stod(xercesc::XMLString::transcode(xmlOutdoorTemp->getFirstChild()->getNodeValue()));
     
     return true;
 }
 
-bool DCParser::parseRacksAndIRCs(json::array &itArray,
-                                 std::vector<RackAndIRC::RackAndIRCParams> &rackIRC )
+bool DCParser::parseRacksAndIRCs(xercesc::DOMNodeList* xmlITs, std::vector<RackAndIRC::RackAndIRCParams> &rackIRC )
 {
-    VLOG_1 << "Found " << itArray.size() << " RackAndIRC Couples";
-    for (auto i=0; i< itArray.size(); i++){
+    VLOG_1 << "Found " << xmlITs->getLength() << " RackAndIRC Couples";
+    for (unsigned int i=0; i< xmlITs->getLength(); i++){
         // Get the RackIRCCouple data
-        json::value &element = itArray.at(i);
-        if (!element.has_field(U("RackIRCCouple"))){
-            LOG_WARNING << "No RackIRCCouple found!! This is an error";
-            return false;
-        }
-        json::value &couple = element[U("RackIRCCouple")];
+    	xercesc::DOMNode* xmlIT = xmlITs->item(i);
+    	xercesc::DOMNode* xmlRackIRCCouple = DCParser::xmlDameNodoHijo(xmlIT, "RackIRCCouple");
 
         // Parse RackIRCCouple parameters
+        xercesc::DOMNode* xmlName = DCParser::xmlDameNodoHijo(xmlRackIRCCouple, "name");
         RackAndIRC::RackAndIRCParams thisCouple;
-        if (!couple.has_field("name")){
-            LOG_WARNING << "RackAndIRC has no name!";
-            return false;
-        }
-        thisCouple.coupleName = couple[U("name")].as_string();
+        thisCouple.coupleName = xercesc::XMLString::transcode(xmlName->getFirstChild()->getNodeValue());
         VLOG_1 << "Couple name is " << thisCouple.coupleName;
 
         if (!couple.has_field("equipment")){
@@ -257,7 +175,7 @@ bool DCParser::parseRacksAndIRCs(json::array &itArray,
     return true;
 }
 
-bool DCParser::parseRackAndServers(json::value &rackInfo, Rack::RackParams &rack)
+bool DCParser::parseRackAndServers(xercesc::DOMNode* rackInfo, Rack::RackParams &rack)
 {
     if (!rackInfo.has_field("Rack")){
         LOG_WARNING << "This is no rack!";
@@ -290,7 +208,7 @@ bool DCParser::parseRackAndServers(json::value &rackInfo, Rack::RackParams &rack
     return true;
 }
 
-bool DCParser::addRoomParams(json::value &config, DCSimulator &sim)
+bool DCParser::addRoomParams(xercesc::DOMNode* dataCenter, DCSimulator &sim)
 {
     if (!config.has_field(U("RoomParams"))){
         LOG_FATAL << "No data center initial configuration parameters";
@@ -339,7 +257,7 @@ bool DCParser::addRoomParams(json::value &config, DCSimulator &sim)
     return true;
 }
 
-bool DCParser::addWorkload(json::value &config, DCSimulator &sim)
+bool DCParser::addWorkload(xercesc::DOMNode* dataCenter, DCSimulator &sim)
 {
     if (!config.has_field(U("Workload"))){
         LOG_FATAL << "No initial workload parameters";
@@ -366,3 +284,21 @@ bool DCParser::addWorkload(json::value &config, DCSimulator &sim)
     return true;
 }
 
+xercesc::DOMNode* DCParser::xmlDameNodoHijo(xercesc::DOMNode* padre, std::string nombreHijo) {
+	xercesc::DOMNodeList* lista_hijos = padre->getChildNodes();
+	xercesc::DOMNode* itr = 0;
+    std::string itr_nombre;
+    for (unsigned int i=0; i<lista_hijos->getLength(); i++)
+    {
+        itr = lista_hijos->item(i);
+        if (itr) itr_nombre = xercesc::XMLString::transcode(itr->getNodeName());
+        if (itr_nombre == nombreHijo) return itr;
+    }
+    return 0;
+}
+
+std::string DCParser::xmlDameAtributo(xercesc::DOMNode* nodo, std::string atributo) {
+    if (nodo->getAttributes()->getNamedItem(xercesc::XMLString::transcode(atributo.c_str())) == 0)
+        return "";
+    return xercesc::XMLString::transcode(nodo->getAttributes()->getNamedItem(xercesc::XMLString::transcode(atributo.c_str()))->getNodeValue());
+}
