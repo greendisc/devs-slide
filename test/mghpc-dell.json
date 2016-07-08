@@ -1,0 +1,524 @@
+"DataCenter" : [ 
+    {
+        "name" : "dc01", 
+        "Chiller" : {
+            "type" : "CustomChiller",
+            "cold-water-temp" : 18.3,
+            "outdoor-temp" : 5
+        },
+        "Pump" : "ASHRAEPump",
+        "Room" : "MGHPCCPod",
+        "IRC" : "APC",
+        "IT" : [ 
+            {
+            "RackIRCCouple" : {
+                "name" : "rc1",
+                "equipment" : [ 
+                    {
+                        "Rack" : {
+                            "name" : "rack1",
+                            "Servers" : [
+                                ["s1","dell"],
+                                ["s2","dell"],
+                                ["s3","dell"],
+                                ["s4","dell"],
+                                ["s5","dell"],
+                                ["s6","dell"],
+                                ["s7","dell"],
+                                ["s8","dell"],
+                                ["s9","dell"],
+                                ["s10","dell"],
+                                ["s11","dell"],
+                                ["s12","dell"],
+                                ["s13","dell"],
+                                ["s14","dell"],
+                                ["s15","dell"],
+                                ["s16","dell"],
+                                ["s17","dell"],
+                                ["s18","dell"]
+                            ]
+                        }
+                    },
+                    {
+                        "Rack" : {
+                            "name" : "rack2",
+                            "Servers" : [
+                                ["s19","dell"],
+                                ["s20","dell"],
+                                ["s21","dell"],
+                                ["s22","dell"],
+                                ["s23","dell"],
+                                ["s24","dell"],
+                                ["s25","dell"],
+                                ["s26","dell"],
+                                ["s27","dell"],
+                                ["s28","dell"],
+                                ["s29","dell"],
+                                ["s30","dell"],
+                                ["s31","dell"],
+                                ["s32","dell"],
+                                ["s33","dell"],
+                                ["s34","dell"],
+                                ["s35","dell"],
+                                ["s36","dell"]
+
+                            ]
+                        }
+                    }
+                ]
+              }
+            },{
+            "RackIRCCouple" : {
+                "name" : "rc2",
+                "equipment" : [ 
+                    {
+                        "Rack" : {
+                            "name" : "rack3",
+                            "Servers" : [
+                                ["s37","dell"],
+                                ["s38","dell"],
+                                ["s39","dell"],
+                                ["s40","dell"],
+                                ["s40","dell"],
+                                ["s41","dell"],
+                                ["s42","dell"],
+                                ["s43","dell"],
+                                ["s44","dell"],
+                                ["s45","dell"],
+                                ["s46","dell"],
+                                ["s47","dell"],
+                                ["s48","dell"],
+                                ["s49","dell"],
+                                ["s50","dell"],
+                                ["s51","dell"],
+                                ["s52","dell"],
+                                ["s53","dell"],
+                                ["s54","dell"]
+                            ]
+                        }
+                    },
+                    {
+                        "Rack" : {
+                            "name" : "rack4",
+                            "Servers" : [
+                                ["s55","dell"],
+                                ["s56","dell"],
+                                ["s57","dell"],
+                                ["s58","dell"],
+                                ["s59","dell"],
+                                ["s60","dell"],
+                                ["s61","dell"],
+                                ["s62","dell"],
+                                ["s63","dell"],
+                                ["s64","dell"],
+                                ["s65","dell"],
+                                ["s66","dell"],
+                                ["s67","dell"],
+                                ["s68","dell"],
+                                ["s69","dell"],
+                                ["s70","dell"],
+                                ["s71","dell"],
+                                ["s72","dell"]
+                            ]
+                        }
+                    }
+                ]
+              }
+            },{
+            "RackIRCCouple" : {
+                "name" : "rc3",
+                "equipment" : [ 
+                    {
+                        "Rack" : {
+                            "name" : "rack5",
+                            "Servers" : [
+                                ["s73","dell"],
+                                ["s74","dell"],
+                                ["s75","dell"],
+                                ["s76","dell"],
+                                ["s77","dell"],
+                                ["s78","dell"],
+                                ["s79","dell"],
+                                ["s80","dell"],
+                                ["s81","dell"],
+                                ["s82","dell"],
+                                ["s83","dell"],
+                                ["s84","dell"],
+                                ["s85","dell"],
+                                ["s86","dell"],
+                                ["s87","dell"],
+                                ["s88","dell"],
+                                ["s89","dell"],
+                                ["s90","dell"]
+                            ]
+                        }
+                    },
+                    {
+                        "Rack" : {
+                            "name" : "rack6",
+                            "Servers" : [
+                                ["s91","dell"],
+                                ["s92","dell"],
+                                ["s93","dell"],
+                                ["s94","dell"],
+                                ["s95","dell"],
+                                ["s96","dell"],
+                                ["s97","dell"],
+                                ["s98","dell"],
+                                ["s99","dell"],
+                                ["s100","dell"],
+                                ["s101","dell"],
+                                ["s102","dell"],
+                                ["s103","dell"],
+                                ["s104","dell"],
+                                ["s105","dell"],
+                                ["s106","dell"],
+                                ["s107","dell"],
+                                ["s108","dell"]
+                            ]
+                        }
+                    }
+                ]
+              }
+            },{
+            "RackIRCCouple" : {
+                "name" : "rc4",
+                "equipment" : [ 
+                    {
+                        "Rack" : {
+                            "name" : "rack7",
+                            "Servers" : [
+                                ["s109","dell"],
+                                ["s110","dell"],
+                                ["s111","dell"],
+                                ["s112","dell"],
+                                ["s113","dell"],
+                                ["s114","dell"],
+                                ["s115","dell"],
+                                ["s116","dell"],
+                                ["s117","dell"],
+                                ["s118","dell"],
+                                ["s119","dell"],
+                                ["s120","dell"],
+                                ["s121","dell"],
+                                ["s122","dell"],
+                                ["s123","dell"],
+                                ["s124","dell"],
+                                ["s125","dell"],
+                                ["s126","dell"]
+                            ]
+                        }
+                    },
+                    {
+                        "Rack" : {
+                            "name" : "rack8",
+                            "Servers" : [
+                                ["s127","dell"],
+                                ["s128","dell"],
+                                ["s129","dell"],
+                                ["s130","dell"],
+                                ["s131","dell"],
+                                ["s132","dell"],
+                                ["s133","dell"],
+                                ["s134","dell"],
+                                ["s135","dell"],
+                                ["s136","dell"],
+                                ["s137","dell"],
+                                ["s138","dell"],
+                                ["s139","dell"],
+                                ["s140","dell"],
+                                ["s141","dell"],
+                                ["s142","dell"],
+                                ["s143","dell"],
+                                ["s144","dell"]
+                            ]
+                        }
+                    }
+                ]
+              }
+            },{
+            "RackIRCCouple" : {
+                "name" : "rc5",
+                "equipment" : [ 
+                    {
+                        "Rack" : {
+                            "name" : "rack9",
+                            "Servers" : [
+                                ["s145","dell"],
+                                ["s146","dell"],
+                                ["s147","dell"],
+                                ["s148","dell"],
+                                ["s149","dell"],
+                                ["s150","dell"],
+                                ["s151","dell"],
+                                ["s152","dell"],
+                                ["s153","dell"],
+                                ["s154","dell"],
+                                ["s155","dell"],
+                                ["s156","dell"],
+                                ["s157","dell"],
+                                ["s158","dell"],
+                                ["s159","dell"],
+                                ["s160","dell"],
+                                ["s161","dell"],
+                                ["s162","dell"]
+                            ]
+                        }
+                    },
+                    {
+                        "Rack" : {
+                            "name" : "rack10",
+                            "Servers" : [
+   
+                                ["s163","dell"],
+                                ["s164","dell"],
+                                ["s165","dell"],
+                                ["s166","dell"],
+                                ["s167","dell"],
+                                ["s168","dell"],
+                                ["s169","dell"],
+                                ["s170","dell"],
+                                ["s171","dell"],
+                                ["s172","dell"],
+                                ["s173","dell"],
+                                ["s174","dell"],
+                                ["s175","dell"],
+                                ["s176","dell"],
+                                ["s177","dell"],
+                                ["s178","dell"],
+                                ["s179","dell"],
+                                ["s180","dell"]
+                            ]
+                        }
+                    }
+                ]
+              }
+            },{
+            "RackIRCCouple" : {
+                "name" : "rc6",
+                "equipment" : [ 
+                    {
+                        "Rack" : {
+                            "name" : "rack11",
+                            "Servers" : [
+                                ["s181","dell"],
+                                ["s182","dell"],
+                                ["s183","dell"],
+                                ["s184","dell"],
+                                ["s185","dell"],
+                                ["s186","dell"],
+                                ["s187","dell"],
+                                ["s188","dell"],
+                                ["s189","dell"],
+                                ["s190","dell"],
+                                ["s191","dell"],
+                                ["s192","dell"],
+                                ["s193","dell"],
+                                ["s194","dell"],
+                                ["s195","dell"],
+                                ["s196","dell"],
+                                ["s197","dell"],
+                                ["s198","dell"]
+                            ]
+                   }
+                    },
+                    {
+                        "Rack" : {
+                            "name" : "rack12",
+                            "Servers" : [
+                                ["s199","dell"],
+                                ["s200","dell"],
+                                ["s201","dell"],
+                                ["s202","dell"],
+                                ["s203","dell"],
+                                ["s204","dell"],
+                                ["s205","dell"],
+                                ["s206","dell"],
+                                ["s207","dell"],
+                                ["s208","dell"],
+                                ["s209","dell"],
+                                ["s210","dell"],
+                                ["s211","dell"],
+                                ["s212","dell"],
+                                ["s213","dell"],
+                                ["s214","dell"],
+                                ["s215","dell"],
+                                ["s216","dell"]
+                            ]
+                        }
+                    }
+                ]
+              }
+            },{
+            "RackIRCCouple" : {
+                "name" : "rc7",
+                "equipment" : [ 
+                    {
+                        "Rack" : {
+                            "name" : "rack13",
+                            "Servers" : [
+                                ["s217","dell"],
+                                ["s218","dell"],
+                                ["s219","dell"],
+                                ["s220","dell"],
+                                ["s221","dell"],
+                                ["s222","dell"],
+                                ["s223","dell"],
+                                ["s224","dell"],
+                                ["s225","dell"],
+                                ["s226","dell"],
+                                ["s227","dell"],
+                                ["s228","dell"],
+                                ["s229","dell"],
+                                ["s230","dell"],
+                                ["s231","dell"],
+                                ["s232","dell"],
+                                ["s233","dell"],
+                                ["s234","dell"]
+                            ]
+                        }
+                    },
+                    {
+                        "Rack" : {
+                            "name" : "rack14",
+                            "Servers" : [
+                                ["s235","dell"],
+                                ["s236","dell"],
+                                ["s237","dell"],
+                                ["s238","dell"],
+                                ["s239","dell"],
+                                ["s240","dell"],
+                                ["s241","dell"],
+                                ["s242","dell"],
+                                ["s243","dell"],
+                                ["s244","dell"],
+                                ["s245","dell"],
+                                ["s246","dell"],
+                                ["s247","dell"],
+                                ["s248","dell"],
+                                ["s249","dell"],
+                                ["s250","dell"],
+                                ["s251","dell"],
+                                ["s252","dell"]
+                            ]
+                        }
+                    }
+                  ]
+                }
+              },{
+              "RackIRCCouple" : {
+                "name" : "rc8",
+                "equipment" : [ 
+                    {
+                        "Rack" : {
+                            "name" : "rack15",
+                            "Servers" : [
+                                ["s253","dell"],
+                                ["s254","dell"],
+                                ["s255","dell"],
+                                ["s256","dell"],
+                                ["s257","dell"],
+                                ["s258","dell"],
+                                ["s259","dell"],
+                                ["s260","dell"],
+                                ["s261","dell"],
+                                ["s262","dell"],
+                                ["s263","dell"],
+                                ["s264","dell"],
+                                ["s265","dell"],
+                                ["s266","dell"],
+                                ["s267","dell"],
+                                ["s268","dell"],
+                                ["s269","dell"],
+                                ["s270","dell"]
+                            ]
+                        }
+                    },
+                    {
+                        "Rack" : {
+                            "name" : "rack16",
+                            "Servers" : [
+                                ["s271","dell"],
+                                ["s272","dell"],
+                                ["s273","dell"],
+                                ["s274","dell"],
+                                ["s275","dell"],
+                                ["s276","dell"],
+                                ["s277","dell"],
+                                ["s278","dell"],
+                                ["s279","dell"],
+                                ["s280","dell"],
+                                ["s281","dell"],
+                                ["s282","dell"],
+                                ["s283","dell"],
+                                ["s284","dell"],
+                                ["s285","dell"],
+                                ["s286","dell"],
+                                ["s287","dell"],
+                                ["s288","dell"]
+                            ]
+                        }
+                    }
+                  ]
+                }
+              },{
+              "RackIRCCouple" : {
+                "name" : "rc9",
+                "equipment" : [ 
+                    {
+                        "Rack" : {
+                            "name" : "rack17",
+                            "Servers" : [
+                                ["s289","dell"],
+                                ["s290","dell"],
+                                ["s291","dell"],
+                                ["s292","dell"],
+                                ["s293","dell"],
+                                ["s294","dell"],
+                                ["s295","dell"],
+                                ["s296","dell"],
+                                ["s297","dell"],
+                                ["s298","dell"],
+                                ["s299","dell"],
+                                ["s300","dell"],
+                                ["s301","dell"],
+                                ["s302","dell"],
+                                ["s303","dell"],
+                                ["s304","dell"],
+                                ["s305","dell"],
+                                ["s306","dell"]
+                            ]
+                        }
+                    },
+                    {
+                        "Rack" : {
+                            "name" : "rack18",
+                            "Servers" : [
+                                ["s307","dell"],
+                                ["s308","dell"],
+                                ["s309","dell"],
+                                ["s310","dell"],
+                                ["s311","dell"],
+                                ["s312","dell"],
+                                ["s313","dell"],
+                                ["s314","dell"],
+                                ["s315","dell"],
+                                ["s316","dell"],
+                                ["s317","dell"],
+                                ["s318","dell"],
+                                ["s319","dell"],
+                                ["s320","dell"],
+                                ["s321","dell"],
+                                ["s322","dell"],
+                                ["s323","dell"],
+                                ["s324","dell"]
+                            ]
+                        }
+                    }
+                ]
+              }
+            }
+        ]
+    }
+]
+
