@@ -14,20 +14,9 @@
 #include <map>
 #include <functional>
 
-#include "cpprest/basic_types.h"
 #include <sys/time.h>
 
 #include "../dc-simulator.h"
-#include "cpprest/json.h"
-#include "cpprest/http_listener.h"
-#include "cpprest/uri.h"
-#include "cpprest/asyncrt_utils.h"
-
-using namespace web;
-using namespace http;
-using namespace utility;
-using namespace http::experimental::listener;
-using namespace web::json;
 
 class DCSimulator;
 

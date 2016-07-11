@@ -9,7 +9,7 @@
 
 #include "dc-parser.h"
 
-bool DCParser::parseCmdLineArgs(int argc, char *argv[], CmdLineArgs &parsedArgs)
+bool DCParser::parseCmdLineArgs(CmdLineArgs &parsedArgs)
 {
 	// Get the value parsed by each arg and fill-in struct.
 	parsedArgs.configFile = "test/ConfigFile.xml";
@@ -17,7 +17,7 @@ bool DCParser::parseCmdLineArgs(int argc, char *argv[], CmdLineArgs &parsedArgs)
 	parsedArgs.powerOutFile = "PowerFile.txt";
 	parsedArgs.port = 4321;
 	parsedArgs.baseTime = 1316242565;
-	parsedArgs.offline = false;
+	parsedArgs.offline = true;
 	if (parsedArgs.offline){
 		parsedArgs.jobLoggerFile = "JobLogger.txt";
 	}
@@ -27,17 +27,16 @@ bool DCParser::parseCmdLineArgs(int argc, char *argv[], CmdLineArgs &parsedArgs)
     return true;
 }
 
-void DCParser::parseDCConfig(DCSimulator::DCParams &layout)
+xercesc::DOMNode* DCParser::parseDCConfig(DCSimulator::DCParams &layout)
 {
-	xercesc::XMLPlatformUtils::Initialize();
 	xercesc::XercesDOMParser* parser = new xercesc::XercesDOMParser();
     parser->parse("test/ConfigFile.xml");
     xercesc::DOMDocument* doc = parser->getDocument();
-    xercesc::DOMNode* dataCenter = doc->getFirstChild();
+    xercesc::DOMNode* xmlDataCenter = doc->getFirstChild();
 
     VLOG_1 << "Got a Data Center layout. Going to parse it";
 
-    bool res = DCParser::parseLayout(dataCenter, layout);
+    bool res = DCParser::parseLayout(xmlDataCenter, layout);
     if (!res){
         LOG_FATAL << "Could not parse DC layout. Exiting...";
     }
@@ -49,7 +48,7 @@ void DCParser::parseDCConfig(DCSimulator::DCParams &layout)
            << " -- Pump= " << layout.pumpType << std::endl
            << " -- Room= " << layout.roomType << std::endl
            << " -- IRC= " << layout.ircType ;
-    xercesc::XMLPlatformUtils::Terminate();
+    return xmlDataCenter;
 }
 
 bool DCParser::parseLayout (xercesc::DOMNode* xmlDataCenter, DCSimulator::DCParams &params) {
@@ -149,68 +148,66 @@ bool DCParser::parseRacksAndIRCs(xercesc::DOMNodeList* xmlITs, std::vector<RackA
         thisCouple.coupleName = xercesc::XMLString::transcode(xmlName->getFirstChild()->getNodeValue());
         VLOG_1 << "Couple name is " << thisCouple.coupleName;
 
-        if (!couple.has_field("equipment")){
+        xercesc::DOMNode* xmlEquipment = DCParser::xmlDameNodoHijo(xmlRackIRCCouple, "equipment");
+        if (xmlEquipment==0){
             LOG_WARNING << "RackAndIRC has no equipment info!";
             return false;
         }
-        json::array &equipment = couple[U("equipment")].as_array();
-        if (!equipment.size()){
+
+        xercesc::DOMNodeList* xmlRacks = xmlEquipment->getChildNodes();
+        if (xmlRacks->getLength()==0){
             LOG_WARNING << "RackAndIRC has no racks inside!";
             return false;
         }
-        thisCouple.numRacksPerIRC = equipment.size();
-        VLOG_1 << "RackAndIRC couple " << thisCouple.coupleName << " has "
-               << equipment.size() << " racks per IRC" ;
-        for (auto j=0; j<equipment.size(); j++){
-            Rack::RackParams rack;
-            json::value &rackval = equipment.at(j);
-            if (!parseRackAndServers(rackval, rack)){
+        VLOG_1 << "RackAndIRC couple " << thisCouple.coupleName << " has " << xmlRacks->getLength() << " racks per IRC" ;
+        for (unsigned int j=0; j<xmlRacks->getLength(); j++){
+        	xercesc::DOMNode* xmlRack = xmlRacks->item(j);
+            Rack::RackParams rackParams;
+            if (!parseRackAndServers(xmlRack, rackParams)){
                 LOG_WARNING << "Could not parse rack and servers";
                 return false;
             }
-            thisCouple.racks.push_back(rack);
+            thisCouple.racks.push_back(rackParams);
         }
         rackIRC.push_back(thisCouple);
     }
     return true;
 }
 
-bool DCParser::parseRackAndServers(xercesc::DOMNode* rackInfo, Rack::RackParams &rack)
-{
-    if (!rackInfo.has_field("Rack")){
-        LOG_WARNING << "This is no rack!";
-        return false;
-    }
-    json::value &rackContents = rackInfo[U("Rack")];
-
-    //Rack name
-    if (!rackContents.has_field("name")){
+bool DCParser::parseRackAndServers(xercesc::DOMNode* xmlRack, Rack::RackParams &rackParams) {
+	xercesc::DOMNode* xmlName = DCParser::xmlDameNodoHijo(xmlRack, "name");
+	//Rack name
+    if (xmlName == 0){
         LOG_WARNING << "This is no name for rack!";
         return false;
     }
-    rack.rackName = rackContents[U("name")].as_string();
-    VLOG_1 << "Got rack " << rack.rackName ;
+    rackParams.rackName = xercesc::XMLString::transcode(xmlName->getFirstChild()->getNodeValue());
+    VLOG_1 << "Got rack " << rackParams.rackName ;
     
     //Servers inside
-    if (!rackContents.has_field("Servers")){
+    xercesc::DOMNodeList* xmlServers = xmlRack->getChildNodes();
+    unsigned int numServers = 0;
+    for (unsigned int i=1; i<xmlServers->getLength(); i+=2){
+    	xercesc::DOMNode* xmlServer1 = xmlServers->item(i);
+    	xercesc::DOMNode* xmlServer2 = xmlServers->item(i+1);
+        std::string name = xercesc::XMLString::transcode(xmlServer1->getFirstChild()->getNodeValue());
+        std::string type = xercesc::XMLString::transcode(xmlServer2->getFirstChild()->getNodeValue());
+        VLOG_1 << " -- Got server " << name << " of type " << type;
+        rackParams.servers.insert(std::make_pair(name, type));
+        numServers++;
+    }
+    
+    if (numServers == 0) {
         LOG_WARNING << "There are no servers in rack!";
         return false;
     }
-    json::array serverArray = rackContents[U("Servers")].as_array();
-    for (auto i=0; i<serverArray.size(); i++){
-        json::array &thisServer = serverArray.at(i).as_array();
-        std::string name = thisServer.at(0).as_string();
-        std::string type = thisServer.at(1).as_string();
-        VLOG_1 << " -- Got server " << name << " of type " << type;
-        rack.servers.insert(std::make_pair(name, type));
-    }
-    
+
     return true;
 }
 
 bool DCParser::addRoomParams(xercesc::DOMNode* dataCenter, DCSimulator &sim)
 {
-    if (!config.has_field(U("RoomParams"))){
+    /*if (!config.has_field(U("RoomParams"))){
         LOG_FATAL << "No data center initial configuration parameters";
     }
     json::value &params = config[U("RoomParams")];
@@ -254,12 +251,13 @@ bool DCParser::addRoomParams(xercesc::DOMNode* dataCenter, DCSimulator &sim)
         sim.getRoom()->setFanSpeed(rackName, serverName, fanspeed);        
     }
     
-    return true;
+    return true;*/
+	return false;
 }
 
 bool DCParser::addWorkload(xercesc::DOMNode* dataCenter, DCSimulator &sim)
 {
-    if (!config.has_field(U("Workload"))){
+    /*if (!config.has_field(U("Workload"))){
         LOG_FATAL << "No initial workload parameters";
     } 
     json::value &wkload = config[U("Workload")];
@@ -281,7 +279,8 @@ bool DCParser::addWorkload(xercesc::DOMNode* dataCenter, DCSimulator &sim)
         // Set power to all servers
         sim.getRoom()->setWorkloadPower(rackName, serverName, cpuPower, memPower, numCores);
     }
-    return true;
+    return true;*/
+	return false;
 }
 
 xercesc::DOMNode* DCParser::xmlDameNodoHijo(xercesc::DOMNode* padre, std::string nombreHijo) {

@@ -7,58 +7,30 @@
  * =====================================================================================
  */
 
-#include <string>
-#include <vector>
-#include <list>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
+#include "sim-launcher.h"
 
-#include "cpprest/basic_types.h"
-#include <sys/time.h>
-#include "cpprest/json.h"
-#include "cpprest/http_listener.h"
-#include "cpprest/uri.h"
-#include "cpprest/asyncrt_utils.h"
-#include <tclap/CmdLine.h>
+SimLauncher::SimLauncher() {
+	xmlDataCenter = 0;
+	xercesc::XMLPlatformUtils::Initialize();
+}
 
-#include "alloc/allocator.h"
-#include "dc-factory.h"
-#include "dc-simulator.h"
-#include "generic_defs.h"
-#include "parser/dc-parser.h"
-#include "weather/weather.h"
-
-using namespace web;
-using namespace http;
-using namespace utility;
-using namespace http::experimental::listener;
-using namespace web::json;
+SimLauncher::~SimLauncher() {
+    xercesc::XMLPlatformUtils::Terminate();
+}
 
 // Global definitions
-json::value config;
+/*json::value config;
 std::ifstream weatherfile;
 std::ofstream powerfile;
 int udpsock;
 std::ifstream jobfile;
-bool noLog;
+bool noLog;*/
 
 /*-------------------------------------
  * Helper functions
  *-------------------------------------*/
-void loadConfig(DCParser::CmdLineArgs &cmdArgs)
+void SimLauncher::loadConfig(DCParser::CmdLineArgs &cmdArgs)
 {
-    // Opening configuration file
-    std::ifstream configfile(cmdArgs.configFile);
-    if ( !configfile ) {
-        LOG_FATAL << "[==DC SIMULATOR] Configuration file " << configfile
-                  << " could not be opened. Exiting...";
-    }
-    std::stringstream cfg;
-    cfg << configfile.rdbuf();
-    config = json::value::parse(cfg);
-    configfile.close(); 
-    
     // Opening weather file
     weatherfile.open(cmdArgs.weatherFile);
     if ( !weatherfile ) {
@@ -82,26 +54,13 @@ void loadConfig(DCParser::CmdLineArgs &cmdArgs)
         }
     }
     else{
-        LOG_INFO << "[==DC SIMULATOR] Online mode, will create socket for communication";
-        int val=1;
-        struct sockaddr_in sin;
-        udpsock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-        setsockopt(udpsock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(int));
-        
-        memset(&sin, 0, sizeof(sin));
-        sin.sin_family = AF_INET;
-        sin.sin_port = htons(cmdArgs.port);
-        sin.sin_addr.s_addr = htonl(INADDR_ANY);
-        if ( bind(udpsock, (struct sockaddr *) &sin, sizeof(sin)) < 0 ){
-            LOG_FATAL << "Error when binding udp socket";
-        }
-        LOG_INFO << "Socket succesfully created at port " << cmdArgs.port;
+        LOG_INFO << "[==DC SIMULATOR] Online mode NOT SUPPORTED";
     }
 }
 
 int recvJobMessage(DCSimulator &sim, Allocator &alloc)
 {
-    int bytecnt;
+    /*int bytecnt;
     char cbuf[200];
 
     VLOG_2 << "Will wait for next message";
@@ -116,10 +75,11 @@ int recvJobMessage(DCSimulator &sim, Allocator &alloc)
     VLOG_1 << "Received buffer is " << buffer ;
     int jobId = alloc.parseNewJob(sim, buffer);
     
-    return jobId;
+    return jobId;*/
+	return -1;
 }
 
-int getJobLoggerLine(DCSimulator &sim, Allocator &alloc)
+int SimLauncher::getJobLoggerLine(DCSimulator &sim, Allocator &alloc)
 {
     
     std::string buffer;
@@ -139,9 +99,9 @@ int getJobLoggerLine(DCSimulator &sim, Allocator &alloc)
         jobfile.clear();
         jobfile.seekg(0, std::ios::beg);
         VLOG_2 << "Resetting room parameters";
-        DCParser::addRoomParams(config, sim);
+        DCParser::addRoomParams(xmlDataCenter, sim);
         VLOG_2 << "Resetting allocation";
-        DCParser::addWorkload(config, sim);
+        DCParser::addWorkload(xmlDataCenter, sim);
         VLOG_2 << "Seeking new job (first line)";
         noLog=true;
         if (!std::getline(jobfile, buffer)){
@@ -158,28 +118,25 @@ int getJobLoggerLine(DCSimulator &sim, Allocator &alloc)
  * MAIN: DC SIMULATOR LAUNCHER
  *--------------------------------------------------------------------------------------
  */
+//std::string FSpolicy = "server-proactive"; //fixed
+//std::string coolPolicy = cmdArgs.coolPolicy ; //fixed, budget
 int main (int argc, char* argv[])
 {
     try { 
 
-        // Logging
-		google::InitGoogleLogging(argv[0]);
-
+    	SimLauncher* simLauncher = new SimLauncher();
         // Should parse command-line args here!
         //-------------------------------------
         DCParser::CmdLineArgs cmdArgs;
-        DCParser::parseCmdLineArgs(argc, argv, cmdArgs);
-        
-        std::string FSpolicy = "server-proactive"; //fixed
-        std::string coolPolicy = cmdArgs.coolPolicy ; //fixed, budget
-        
+        DCParser::parseCmdLineArgs(cmdArgs);
         // Loading initial configuration
-        loadConfig(cmdArgs);
+        simLauncher->loadConfig(cmdArgs);
                        
         // Parsing initial configuration
         // ----------------------------------------
         DCSimulator::DCParams layout;
-        DCParser::parseDCConfig(config, layout);
+        xercesc::DOMNode* xmlDataCenter = DCParser::parseDCConfig(layout);
+        simLauncher->xmlDataCenter = xmlDataCenter;
         VLOG_1 << "Layout parsed. Constructing simulator";
         
         //==================================================
@@ -188,22 +145,22 @@ int main (int argc, char* argv[])
         //==================================================
 
         VLOG_1 << "Adding room parameters...";
-        DCParser::addRoomParams(config, sim);
+        DCParser::addRoomParams(xmlDataCenter, sim);
         LOG_INFO << "Parameters inserted into simulator";
 
         //---------------------------------------------------
         VLOG_1 << "Adding room parameters...";
         // FIXME-marina: in the future we'll need to change workload parsing
-        DCParser::addWorkload(config, sim);
+        DCParser::addWorkload(xmlDataCenter, sim);
         LOG_INFO << "Workload inserted into simulator";
 
         // Creating allocator
         //====================
         Allocator alloc(cmdArgs.baseTime, cmdArgs.firstSubmit, cmdArgs.allocPath, cmdArgs.offline);
-        Weather weather(weatherfile);
+        Weather weather(simLauncher->weatherfile);
 
         // Creating cooling control policy
-        CoolingPolicy* cool = PolicyFactory::createCoolingPolicy(coolPolicy, sim);
+        CoolingPolicy* cool = PolicyFactory::createCoolingPolicy(cmdArgs.coolPolicy, sim);
         if (cool == NULL){
             LOG_FATAL << "Cooling policy does not exist!";
         }
@@ -215,20 +172,9 @@ int main (int argc, char* argv[])
         VLOG_2 << "Will now print current allocation";
         alloc.printCurrentAlloc(sim);
 
-        // Check begin flag to see if job is starting or ending
-        std::function<int(DCSimulator&, Allocator&)> getNewJob;
-        if (cmdArgs.offline){
-            VLOG_1 << "Off-line mode. Will call getJobLoggerLine.";
-            getNewJob = std::bind(getJobLoggerLine, std::placeholders::_1, std::placeholders::_2);
-        }
-        else{
-            VLOG_1 << "On-line mode. Will use udp sockets.";
-            getNewJob = std::bind(recvJobMessage, std::placeholders::_1, std::placeholders::_2);
-        }
-
         while (!fi){
             noLog=false;
-            int jobId = getNewJob(sim, alloc);
+            int jobId = simLauncher->getJobLoggerLine(sim, alloc);
             VLOG_1 << "NoLog flag is: " << noLog;
             if (jobId < 0){
                 LOG_FATAL << "Error processing job";
@@ -254,15 +200,16 @@ int main (int argc, char* argv[])
             sim.computePower(tempOut);
 
             VLOG_1 << "Printing all data";
-            sim.printAllPowerValues(alloc.getCurrentTime(), tempOut, powerfile);
+            sim.printAllPowerValues(alloc.getCurrentTime(), tempOut, simLauncher->powerfile);
         }
 
-        weatherfile.close();
-        powerfile.close();
+        simLauncher->weatherfile.close();
+        simLauncher->powerfile.close();
 
         LOG_INFO << "[==DC Simulator] Computing energy statistics";
         // TODO-marina: add function to compute montly statistics
         sim.printEnergyStatistics(cmdArgs.powerOutFile);
+        delete simLauncher;
 	}
     catch (std::exception& e)  {
         LOG_FATAL << "[==DC Simulator] Exception: " << e.what() ;

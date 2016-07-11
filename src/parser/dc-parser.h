@@ -42,14 +42,14 @@ public:
 
     static constexpr int FIRST_SUBMISSION_TIME = 600;
     
-    static bool parseCmdLineArgs(int argc, char *argv[], CmdLineArgs &parsedArgs);
+    static bool parseCmdLineArgs(CmdLineArgs &parsedArgs);
 
-    static void parseDCConfig(DCSimulator::DCParams &layout);
+    static xercesc::DOMNode* parseDCConfig(DCSimulator::DCParams &layout);
     static bool parseLayout(xercesc::DOMNode* xmlDataCenter, DCSimulator::DCParams &params);
 
     static bool parseChiller(xercesc::DOMNode* xmlChiller, Chiller::ChillerParams &chiller);
     static bool parseRacksAndIRCs(xercesc::DOMNodeList* xmlITs, std::vector<RackAndIRC::RackAndIRCParams> &rackIRC );
-    static bool parseRackAndServers(xercesc::DOMNode* rackInfo, Rack::RackParams &rack);
+    static bool parseRackAndServers(xercesc::DOMNode* xmlRack, Rack::RackParams &rackParams);
 
     static bool addRoomParams(xercesc::DOMNode* dataCenter, DCSimulator &sim);
     static bool addWorkload(xercesc::DOMNode* dataCenter, DCSimulator &sim);
