@@ -10,7 +10,7 @@
 #include "sim-launcher.h"
 
 SimLauncher::SimLauncher() {
-	xmlDataCenter = 0;
+	xmlConfigFile = 0;
 	xercesc::XMLPlatformUtils::Initialize();
 }
 
@@ -18,13 +18,6 @@ SimLauncher::~SimLauncher() {
     xercesc::XMLPlatformUtils::Terminate();
 }
 
-// Global definitions
-/*json::value config;
-std::ifstream weatherfile;
-std::ofstream powerfile;
-int udpsock;
-std::ifstream jobfile;
-bool noLog;*/
 
 /*-------------------------------------
  * Helper functions
@@ -99,9 +92,9 @@ int SimLauncher::getJobLoggerLine(DCSimulator &sim, Allocator &alloc)
         jobfile.clear();
         jobfile.seekg(0, std::ios::beg);
         VLOG_2 << "Resetting room parameters";
-        DCParser::addRoomParams(xmlDataCenter, sim);
+        DCParser::addRoomParams(xmlConfigFile, sim);
         VLOG_2 << "Resetting allocation";
-        DCParser::addWorkload(xmlDataCenter, sim);
+        DCParser::addWorkload(xmlConfigFile, sim);
         VLOG_2 << "Seeking new job (first line)";
         noLog=true;
         if (!std::getline(jobfile, buffer)){
@@ -135,8 +128,8 @@ int main (int argc, char* argv[])
         // Parsing initial configuration
         // ----------------------------------------
         DCSimulator::DCParams layout;
-        xercesc::DOMNode* xmlDataCenter = DCParser::parseDCConfig(layout);
-        simLauncher->xmlDataCenter = xmlDataCenter;
+        xercesc::DOMDocument* xmlConfigFile = DCParser::parseDCConfig(layout);
+        simLauncher->xmlConfigFile = xmlConfigFile;
         VLOG_1 << "Layout parsed. Constructing simulator";
         
         //==================================================
@@ -145,13 +138,13 @@ int main (int argc, char* argv[])
         //==================================================
 
         VLOG_1 << "Adding room parameters...";
-        DCParser::addRoomParams(xmlDataCenter, sim);
+        DCParser::addRoomParams(xmlConfigFile, sim);
         LOG_INFO << "Parameters inserted into simulator";
 
         //---------------------------------------------------
         VLOG_1 << "Adding room parameters...";
         // FIXME-marina: in the future we'll need to change workload parsing
-        DCParser::addWorkload(xmlDataCenter, sim);
+        DCParser::addWorkload(xmlConfigFile, sim);
         LOG_INFO << "Workload inserted into simulator";
 
         // Creating allocator

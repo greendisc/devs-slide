@@ -13,8 +13,8 @@ bool DCParser::parseCmdLineArgs(CmdLineArgs &parsedArgs)
 {
 	// Get the value parsed by each arg and fill-in struct.
 	parsedArgs.configFile = "test/ConfigFile.xml";
-	parsedArgs.weatherFile = "WeatherFile.txt";
-	parsedArgs.powerOutFile = "PowerFile.txt";
+	parsedArgs.weatherFile = "test/WeatherFile.txt";
+	parsedArgs.powerOutFile = "test/PowerFile.txt";
 	parsedArgs.port = 4321;
 	parsedArgs.baseTime = 1316242565;
 	parsedArgs.offline = true;
@@ -27,12 +27,12 @@ bool DCParser::parseCmdLineArgs(CmdLineArgs &parsedArgs)
     return true;
 }
 
-xercesc::DOMNode* DCParser::parseDCConfig(DCSimulator::DCParams &layout)
+xercesc::DOMDocument* DCParser::parseDCConfig(DCSimulator::DCParams &layout)
 {
 	xercesc::XercesDOMParser* parser = new xercesc::XercesDOMParser();
     parser->parse("test/ConfigFile.xml");
-    xercesc::DOMDocument* doc = parser->getDocument();
-    xercesc::DOMNode* xmlDataCenter = doc->getFirstChild();
+    xercesc::DOMDocument* xmlConfigFile = parser->getDocument();
+    xercesc::DOMNode* xmlDataCenter = xmlConfigFile->getFirstChild();
 
     VLOG_1 << "Got a Data Center layout. Going to parse it";
 
@@ -48,7 +48,7 @@ xercesc::DOMNode* DCParser::parseDCConfig(DCSimulator::DCParams &layout)
            << " -- Pump= " << layout.pumpType << std::endl
            << " -- Room= " << layout.roomType << std::endl
            << " -- IRC= " << layout.ircType ;
-    return xmlDataCenter;
+    return xmlConfigFile;
 }
 
 bool DCParser::parseLayout (xercesc::DOMNode* xmlDataCenter, DCSimulator::DCParams &params) {
@@ -205,82 +205,97 @@ bool DCParser::parseRackAndServers(xercesc::DOMNode* xmlRack, Rack::RackParams &
     return true;
 }
 
-bool DCParser::addRoomParams(xercesc::DOMNode* dataCenter, DCSimulator &sim)
-{
-    /*if (!config.has_field(U("RoomParams"))){
+bool DCParser::addRoomParams(xercesc::DOMDocument* xmlConfigFile, DCSimulator &sim) {
+	xercesc::DOMNodeList* xmlRoomParamsAsList = xmlConfigFile->getElementsByTagName(xercesc::XMLString::transcode("RoomParams"));
+    if (xmlRoomParamsAsList->getLength()==0){
         LOG_FATAL << "No data center initial configuration parameters";
+        return false;
     }
-    json::value &params = config[U("RoomParams")];
     
+    xercesc::DOMNode* xmlRoomParams = xmlRoomParamsAsList->item(0);
+    xercesc::DOMNodeList* xmlRoomParamsChildren = xmlRoomParams->getChildNodes();
+
+    unsigned int currentChildPos = 0;
+    xercesc::DOMNode* xmlCurrentChild = xmlRoomParamsChildren->item(currentChildPos);
+    std::string xmlCurrentChildNodeName = xercesc::XMLString::transcode(xmlCurrentChild->getFirstChild()->getNodeValue());
+
     // IRC Inlet temperature
     //-----------------------
-    if (!params.has_field(U("IRCAirTemp"))){
+    if (xmlCurrentChildNodeName!="IRCAirTemp"){
         LOG_WARNING << "No IRC Air temperature vector";
         return false;
     }
-    json::array &irc = params[U("IRCAirTemp")].as_array();
-    VLOG_2 << "IRC has array size of " << irc.size();
-    for (unsigned int i=0; i< irc.size(); i++){
-        json::array &data = irc.at(i).as_array();
-        std::string rackIrcName = data.at(0).as_string();
-        int temp = data.at(1).as_integer();
-
+    while(currentChildPos<xmlRoomParamsChildren->getLength() && xmlCurrentChildNodeName=="IRCAirTemp") {
+    	xercesc::DOMNode* xmlNextChild = xmlRoomParamsChildren->item(currentChildPos++);
+    	std::string rackName = xercesc::XMLString::transcode(xmlCurrentChild->getFirstChild()->getNodeValue());
+    	int rackTemp = std::stoi(xercesc::XMLString::transcode(xmlNextChild->getFirstChild()->getNodeValue()));
         //Set inlet temperature to all servers affected by this IRC
-        VLOG_2 << "Will set " << temp << " temperature to rack "
-               << rackIrcName;
-        sim.getRoom()->setCoupleInletTemp(rackIrcName, temp);
+        VLOG_2 << "Will set " << rackTemp << " temperature to rack " << rackName;
+        sim.getRoom()->setCoupleInletTemp(rackName, rackTemp);
+        if(currentChildPos<xmlRoomParamsChildren->getLength()) {
+        	xmlCurrentChild = xmlRoomParamsChildren->item(currentChildPos);
+        	xmlCurrentChildNodeName = xercesc::XMLString::transcode(xmlCurrentChild->getFirstChild()->getNodeValue());
+        }
     }
 
     // Server fan speed
     //-----------------
-    if (!params.has_field(U("ServerFanSpeed"))){
+    if (xmlCurrentChildNodeName!="ServerFanSpeed"){
         LOG_WARNING << "No server fan speed temperature vector";
         return false;
     }
-    json::array &fan = params[U("ServerFanSpeed")].as_array();
-    VLOG_2 << "Server fan speed has array size of " << fan.size();
-    for (unsigned int i=0; i< fan.size(); i++){
-        json::array &data = fan.at(i).as_array();
-        std::string rackName = data.at(0).as_string();
-        std::string serverName = data.at(1).as_string();
-        int fanspeed = data.at(2).as_integer();
-
-        //Set fan speed to all servers in the list
-        VLOG_2 << "Will set fan speed " << fanspeed << " rpm in server "
-               << serverName << " at rack " << rackName;
-        sim.getRoom()->setFanSpeed(rackName, serverName, fanspeed);        
+    while(currentChildPos<xmlRoomParamsChildren->getLength() && xmlCurrentChildNodeName=="ServerFanSpeed") {
+    	xercesc::DOMNode* xmlSecondChild = xmlRoomParamsChildren->item(currentChildPos++);
+    	xercesc::DOMNode* xmlThirdChild = xmlRoomParamsChildren->item(currentChildPos++);
+    	std::string rackName = xercesc::XMLString::transcode(xmlCurrentChild->getFirstChild()->getNodeValue());
+    	std::string serverName = xercesc::XMLString::transcode(xmlSecondChild->getFirstChild()->getNodeValue());
+    	int fanSpeed = std::stoi(xercesc::XMLString::transcode(xmlThirdChild->getFirstChild()->getNodeValue()));
+    	//Set fan speed to all servers in the list
+    	VLOG_2 << "Will set fan speed " << fanSpeed << " rpm in server " << serverName << " at rack " << rackName;
+        sim.getRoom()->setFanSpeed(rackName, serverName, fanSpeed);
+        if(currentChildPos<xmlRoomParamsChildren->getLength()) {
+        	xmlCurrentChild = xmlRoomParamsChildren->item(currentChildPos);
+        	xmlCurrentChildNodeName = xercesc::XMLString::transcode(xmlCurrentChild->getFirstChild()->getNodeValue());
+        }
     }
-    
-    return true;*/
-	return false;
+    return true;
 }
 
-bool DCParser::addWorkload(xercesc::DOMNode* dataCenter, DCSimulator &sim)
-{
-    /*if (!config.has_field(U("Workload"))){
+bool DCParser::addWorkload(xercesc::DOMDocument* xmlConfigFile, DCSimulator &sim) {
+	xercesc::DOMNodeList* xmlWorkloadAsList = xmlConfigFile->getElementsByTagName(xercesc::XMLString::transcode("Workload"));
+    if (xmlWorkloadAsList->getLength()==0){
         LOG_FATAL << "No initial workload parameters";
+        return false;
     } 
-    json::value &wkload = config[U("Workload")];
     
-    if (!wkload.has_field(U("ServerPower"))){
-        LOG_WARNING << "No server power vector";
+    xercesc::DOMNode* xmlWorkload = xmlWorkloadAsList->item(0);
+    xercesc::DOMNodeList* xmlWorkloadChildren = xmlWorkload->getChildNodes();
+
+    unsigned int currentChildPos = 0;
+    xercesc::DOMNode* xmlCurrentChild = xmlWorkloadChildren->item(currentChildPos);
+    std::string xmlCurrentChildNodeName = xercesc::XMLString::transcode(xmlCurrentChild->getFirstChild()->getNodeValue());
+    if (xmlCurrentChildNodeName!="ServerPower"){
+    	LOG_WARNING << "No server power vector";
         return false;
     }
-    json::array &power = wkload[U("ServerPower")].as_array();
-    VLOG_2 << "Server power has array size of " << power.size();
-    for (unsigned int i=0; i< power.size(); i++){
-        json::array &data = power.at(i).as_array();
-        std::string rackName = data.at(0).as_string();
-        std::string serverName = data.at(1).as_string();
-        int numCores = data.at(2).as_integer();
-        double cpuPower = data.at(3).as_double();
-        double memPower = data.at(4).as_double();
-
+    while(currentChildPos<xmlWorkloadChildren->getLength() && xmlCurrentChildNodeName=="ServerPower") {
+    	xercesc::DOMNode* xmlChild2 = xmlWorkloadChildren->item(currentChildPos++);
+    	xercesc::DOMNode* xmlChild3 = xmlWorkloadChildren->item(currentChildPos++);
+    	xercesc::DOMNode* xmlChild4 = xmlWorkloadChildren->item(currentChildPos++);
+    	xercesc::DOMNode* xmlChild5 = xmlWorkloadChildren->item(currentChildPos++);
+    	std::string rackName = xercesc::XMLString::transcode(xmlCurrentChild->getFirstChild()->getNodeValue());
+    	std::string serverName = xercesc::XMLString::transcode(xmlChild2->getFirstChild()->getNodeValue());
+    	int numCores = std::stoi(xercesc::XMLString::transcode(xmlChild3->getFirstChild()->getNodeValue()));
+    	double cpuPower = std::stod(xercesc::XMLString::transcode(xmlChild4->getFirstChild()->getNodeValue()));
+    	double memPower = std::stod(xercesc::XMLString::transcode(xmlChild5->getFirstChild()->getNodeValue()));
         // Set power to all servers
         sim.getRoom()->setWorkloadPower(rackName, serverName, cpuPower, memPower, numCores);
+    	if(currentChildPos<xmlWorkloadChildren->getLength()) {
+    		xmlCurrentChild = xmlWorkloadChildren->item(currentChildPos);
+    		xmlCurrentChildNodeName = xercesc::XMLString::transcode(xmlCurrentChild->getFirstChild()->getNodeValue());
+    	}
     }
-    return true;*/
-	return false;
+    return true;
 }
 
 xercesc::DOMNode* DCParser::xmlDameNodoHijo(xercesc::DOMNode* padre, std::string nombreHijo) {

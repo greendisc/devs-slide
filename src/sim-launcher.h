@@ -26,7 +26,7 @@ public:
 	/*json::value config;
 	int udpsock;
 	bool noLog;*/
-	xercesc::DOMNode* xmlDataCenter;
+	xercesc::DOMDocument* xmlConfigFile;
 	std::ifstream weatherfile;
 	std::ofstream powerfile;
 	std::ifstream jobfile;

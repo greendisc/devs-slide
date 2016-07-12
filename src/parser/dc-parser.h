@@ -44,15 +44,15 @@ public:
     
     static bool parseCmdLineArgs(CmdLineArgs &parsedArgs);
 
-    static xercesc::DOMNode* parseDCConfig(DCSimulator::DCParams &layout);
+    static xercesc::DOMDocument* parseDCConfig(DCSimulator::DCParams &layout);
     static bool parseLayout(xercesc::DOMNode* xmlDataCenter, DCSimulator::DCParams &params);
 
     static bool parseChiller(xercesc::DOMNode* xmlChiller, Chiller::ChillerParams &chiller);
     static bool parseRacksAndIRCs(xercesc::DOMNodeList* xmlITs, std::vector<RackAndIRC::RackAndIRCParams> &rackIRC );
     static bool parseRackAndServers(xercesc::DOMNode* xmlRack, Rack::RackParams &rackParams);
 
-    static bool addRoomParams(xercesc::DOMNode* dataCenter, DCSimulator &sim);
-    static bool addWorkload(xercesc::DOMNode* dataCenter, DCSimulator &sim);
+    static bool addRoomParams(xercesc::DOMDocument* xmlConfigFile, DCSimulator &sim);
+    static bool addWorkload(xercesc::DOMDocument* xmlConfigFile, DCSimulator &sim);
     
     static xercesc::DOMNode* xmlDameNodoHijo(xercesc::DOMNode* padre, std::string nombreHijo);
     static std::string xmlDameAtributo(xercesc::DOMNode* nodo, std::string atributo);
