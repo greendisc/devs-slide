@@ -13,6 +13,7 @@
 #include <vector>
 #include <list>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <cstdlib>
 #include <cstring>
@@ -21,8 +22,6 @@
 
 #include "generic_defs.h"
 #include "parser/dc-parser.h"
-
-extern bool noLog;
 
 /**
    constructing simulator class
@@ -137,7 +136,7 @@ void DCSimulator::printAllPowerValues( time_t time, double tempOut, std::ofstrea
               << m_chiller->getTowerPower()/1000 << ","
               << totPower/1000 << ","
               << avgTinlet ;
-        
+
     powerOutFile << time << "," << tempOut << ","
                  << roomSummary.serverITPower/1000 << ","
                  << roomSummary.serverFSPower/1000 << ","
@@ -154,10 +153,10 @@ void DCSimulator::printAllPowerValues( time_t time, double tempOut, std::ofstrea
         powerOutFile << ",'" << roomSummary.roomException << "','"
                      << roomSummary.msg << "'" ;
     }
-    if (noLog){
+    /*JOSELE if (noLog){
         std::cout << ",'NoLog'" ;
         powerOutFile << ",'NoLog'" ;
-    }
+    }*/
 
     std::cout << std::endl ;
     powerOutFile << std::endl;

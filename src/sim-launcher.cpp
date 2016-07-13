@@ -27,14 +27,14 @@ void SimLauncher::loadConfig(DCParser::CmdLineArgs &cmdArgs)
     // Opening weather file
     weatherfile.open(cmdArgs.weatherFile);
     if ( !weatherfile ) {
-        LOG_FATAL << "[==DC SIMULATOR] Weather file " << weatherfile
+        LOG_FATAL << "[==DC SIMULATOR] Weather file " << cmdArgs.weatherFile
                   << " could not be opened. Exiting...";
     }
 
     // Opening output power file
     powerfile.open(cmdArgs.powerOutFile);
     if ( !powerfile ){
-        LOG_FATAL << "[==DC SIMULATOR] Power summary output file " << powerfile
+        LOG_FATAL << "[==DC SIMULATOR] Power summary output file " << cmdArgs.powerOutFile
                   << " could not be opened. Exiting...";
     }
     
@@ -96,7 +96,7 @@ int SimLauncher::getJobLoggerLine(DCSimulator &sim, Allocator &alloc)
         VLOG_2 << "Resetting allocation";
         DCParser::addWorkload(xmlConfigFile, sim);
         VLOG_2 << "Seeking new job (first line)";
-        noLog=true;
+        // JOSELE: noLog=true;
         if (!std::getline(jobfile, buffer)){
             LOG_WARNING << "Could not read job file!";
             return -1;
@@ -166,9 +166,9 @@ int main (int argc, char* argv[])
         alloc.printCurrentAlloc(sim);
 
         while (!fi){
-            noLog=false;
+            // JOSELE: noLog=false;
             int jobId = simLauncher->getJobLoggerLine(sim, alloc);
-            VLOG_1 << "NoLog flag is: " << noLog;
+            // JOSELE: VLOG_1 << "NoLog flag is: " << noLog;
             if (jobId < 0){
                 LOG_FATAL << "Error processing job";
             }

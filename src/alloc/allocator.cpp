@@ -78,8 +78,8 @@ void Allocator::printCurrentAlloc(DCSimulator &sim)
     VLOG_2 << "File printed successfully";
 }
 
-int Allocator::parseNewJob(DCSimulator &sim, std::string &buffer)
-{
+int Allocator::parseNewJob(DCSimulator &sim, std::string &buffer) {
+	/*
     Job job;
     std::stringstream ss(buffer);
     std::string it;
@@ -214,12 +214,13 @@ int Allocator::parseNewJob(DCSimulator &sim, std::string &buffer)
         LOG_FATAL << "Error parsing allocation for job " << job.jobId;
     }
     m_jobMap.insert(std::make_pair(job.jobId, job));
-    return job.jobId;
+    return job.jobId;*/
+	return -1;
 }
 
-bool Allocator::parseAllocation(DCSimulator &sim, json::value &jsonData,
-                                json::value &jsonParams, Job &job)
+bool Allocator::parseAllocation(DCSimulator &sim, void* jsonData, void* jsonParams, Job &job)
 {
+	/*
     try {
         json::array &thisjob = jsonData[U("Allocation")].as_array();
         json::array &thispar = jsonParams[U("JobParams")].as_array();
@@ -255,7 +256,8 @@ bool Allocator::parseAllocation(DCSimulator &sim, json::value &jsonData,
         LOG_ERROR << "Error parsing allocation: " << e.what();
         return false;
     }
-    return true;
+    return true;*/
+	return false;
 }
 
 // Changes server allocations (server power values) and removes job

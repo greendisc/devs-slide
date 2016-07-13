@@ -49,9 +49,12 @@ public:
     // Methods
     void printCurrentAlloc(DCSimulator &sim);
     int  parseNewJob(DCSimulator &sim, std::string &buffer);
-    bool parseAllocation(DCSimulator &sim,
+/*    bool parseAllocation(DCSimulator &sim,
                          json::value &jsonData,
-                         json::value &jsonParams, Job &job);
+                         json::value &jsonParams, Job &job);*/
+    bool parseAllocation(DCSimulator &sim,
+                         void* jsonData,
+                         void* jsonParams, Job &job);
     bool updateAllocation(DCSimulator &sim, int jobId);
     std::map<int, Job>& getJobMap();
     void setCurrentTime(time_t time);
