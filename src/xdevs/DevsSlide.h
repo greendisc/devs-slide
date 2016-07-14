@@ -11,6 +11,7 @@
 #include <xdevs/core/modeling/Coupled.h>
 
 #include "DevsWeather.h"
+#include "DevsJobsOffline.h"
 
 class DevsSlide : public Coupled {
 protected:

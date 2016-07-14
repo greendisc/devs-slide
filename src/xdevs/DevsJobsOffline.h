@@ -11,6 +11,8 @@
 #include <xdevs/core/modeling/Port.h>
 #include <xdevs/core/modeling/Atomic.h>
 #include <xdevs/core/modeling/Event.h>
+#include <fstream>
+#include <iostream>
 
 class DevsJobsOffline : public Atomic {
 public:
