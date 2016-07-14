@@ -15,8 +15,9 @@
 class DevsSlide : public Coupled {
 protected:
 	DevsWeather weather;
+	DevsJobsOffline jobs;
 public:
-	DevsSlide(const std::string& name, const std::string& weatherFilePath);
+	DevsSlide(const std::string& name, const std::string& weatherFilePath, const std::string& jobsFilePath);
 	virtual ~DevsSlide();
 };
 

@@ -4,7 +4,7 @@
 #include "DevsSlide.h"
 
 int main() {
-	DevsSlide dataCenter("DevsSlide", "test/WeatherFile.txt");
+	DevsSlide dataCenter("DevsSlide", "test/WeatherFile.txt", "test/JobsFile.txt");
 	Coordinator coordinator(&dataCenter);
 	coordinator.initialize();
 	coordinator.simulate((long int)100000000);
