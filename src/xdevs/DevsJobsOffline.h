@@ -17,8 +17,9 @@
 class DevsJobsOffline : public Atomic {
 public:
 	typedef struct {
-		long second;
-		double tempIncrement;
+		bool begin;
+		double time;
+		int id;
 	} JobEntry;
 
 	Port iStop;
@@ -33,6 +34,7 @@ public:
 	virtual void deltext(double e);
 	virtual void lambda();
 protected:
+	double initialTime;
 	std::ifstream jobsFile;
 	JobEntry* nextJobEntry;
 	JobEntry* getNextEntry();

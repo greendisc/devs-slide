@@ -14,6 +14,7 @@ DevsJobsOffline::DevsJobsOffline(const std::string& name, const std::string& job
 	this->addOutPort(&oOut);
 	jobsFile.open(jobsFilePath);
 	nextJobEntry = 0;
+	initialTime = 0.0;
 }
 
 DevsJobsOffline::~DevsJobsOffline() {
@@ -22,8 +23,10 @@ DevsJobsOffline::~DevsJobsOffline() {
 void DevsJobsOffline::initialize() {
 	// We look for the first register, and store it:
 	nextJobEntry = getNextEntry();
+	initialTime = nextJobEntry->time;
+	nextJobEntry->time = 0.0;
 	if(nextJobEntry!=0) {
-		this->holdIn("active", nextJobEntry->second);
+		this->holdIn("active", nextJobEntry->time);
 	}
 	else {
 		this->passivate();
@@ -38,9 +41,9 @@ void DevsJobsOffline::deltint() {
 	// Read next entry:
 	JobEntry* newJobEntry = getNextEntry();
 	if(newJobEntry!=0) {
-		long diff = newJobEntry->second - nextJobEntry->second;
-		if(diff<0 || diff>100000) {
-			std::cerr << newJobEntry->second << " - " << nextJobEntry->second << " = " << diff << ". Difference is less than 0 or greater than 100000, this should not happen" << std::endl;
+		double diff = newJobEntry->time - nextJobEntry->time;
+		if(diff<0) {
+			std::cerr << newJobEntry->time << " - " << nextJobEntry->time << " = " << diff << ". Difference is less than 0, this should not happen" << std::endl;
 			this->passivate();
 		}
 		else {
@@ -60,24 +63,39 @@ void DevsJobsOffline::deltext(double e) {
 void DevsJobsOffline::lambda() {
 	Event event = Event::makeEvent<JobEntry>(nextJobEntry);
 	oOut.addValue(event);
-	std::cout << "Output event with time = " << nextJobEntry->second << ", and inc temp, = " << nextJobEntry->tempIncrement << std::endl;
+	std::cout << "Output event with time = " << nextJobEntry->time << std::endl;
 }
 
 DevsJobsOffline::JobEntry* DevsJobsOffline::getNextEntry() {
-	JobEntry* weatherEntry = 0;
+	JobEntry* jobEntry = 0;
 	if(!jobsFile.eof()) {
-		std::string secondAsString;
-		std::string tempIncrementAsString;
-		std::getline(jobsFile, secondAsString, ',');
-		std::getline(jobsFile, tempIncrementAsString);
-		if(secondAsString.size()>0 && tempIncrementAsString.size()>0) {
-			weatherEntry = new JobEntry;
-			weatherEntry->second = std::stoi(secondAsString);
-			weatherEntry->tempIncrement = std::stod(tempIncrementAsString);
+		std::string typeAsString;
+		std::string timeAsString;
+		std::string idAsString;
+		std::getline(jobsFile, typeAsString, ';');
+		std::getline(jobsFile, timeAsString, ';');
+		std::getline(jobsFile, idAsString);
+		if(typeAsString.size()>0) {
+			jobEntry = new JobEntry;
+			if(typeAsString=="jobbegin") {
+				jobEntry->begin = true;
+				jobEntry->time = std::stol(timeAsString) - initialTime;
+				jobEntry->id = std::stoi(idAsString);
+			}
+			else if(typeAsString=="jobend") {
+				jobEntry->begin = false;
+				jobEntry->time = std::stol(timeAsString) - initialTime;
+				jobEntry->id = std::stoi(idAsString);
+			}
+			else { // exit type
+				jobEntry->begin = false;
+				jobEntry->time = Constants::INFINITY;
+				jobEntry->id = 0;
+			}
 		}
 	}
 	else {
 		std::cout << "File is OVER." << std::endl;
 	}
-	return weatherEntry;
+	return jobEntry;
 }
