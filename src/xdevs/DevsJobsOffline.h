@@ -33,11 +33,13 @@ public:
 	virtual void deltint();
 	virtual void deltext(double e);
 	virtual void lambda();
+
+	// PARTICULAR FUNCTIONS
+	JobEntry* getNextEntry();
 protected:
 	double initialTime;
 	std::ifstream jobsFile;
 	JobEntry* nextJobEntry;
-	JobEntry* getNextEntry();
 };
 
 #endif /* SRC_XDEVS_DEVSJOBSOFFLINE_H_ */
