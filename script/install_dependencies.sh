@@ -1,7 +1,10 @@
 #!/bin/bash
 
-GXX_VERSION=4.8
-BOOST_VERSION=1.54
+GXX_VERSION=5
+BOOST_VERSION=1.58
+
+#FIXME: Casablanca installation needs to be fixed to include -Wno-sign-compare
+# giving cmake the right flag
 
 if [ "x$SIMULATOR_HOME" == "x" ] ; then
     echo "[INSTALL DEPENDENCIES] Environmental variables not set. Please run shenv" ;
@@ -66,41 +69,12 @@ echo "Downloading and installing library dependencies...";
 echo "-----------------------------------------";
 echo "1)  gflags: Google Flag processing for C++" ;
 echo "-----------------------------------------";
-if [ -f /usr/local/lib/libgflags.so ] || [ -f $SIMULATOR_HOME/build/libs/libgflags.so ] ; then
-    echo " -- Already installed... Skipping";
-else
-    echo "INFO: Installing gflags...";
-    echo "INFO: glags is a submodule, no need to download"; 
-    echo "INFO: Pulling module changes..."; 
-    cd $SIMULATOR_HOME/../../
-    git submodule init
-    git submodule update
-    cd $TEMPDIR/gflags/
-    echo "INFO: Installing...";
-    ./configure && make 
-    echo "INFO: gflags: I'll need sudo for make install.." ;
-    sudo make install
-fi;
+sudo apt-get install libgflags-dev
 
 echo "-----------------------------------------";
 echo "2)  google-log: Google logging library for C++" ;
 echo "-----------------------------------------";
-GLOGDIR=$TEMPDIR/google-glog
-if [ -f $GLOGDIR/*/libglog.la ] || [ -f $SIMULATOR_HOME/build/libs/libglog.la ] ; then 
-    echo " -- Already installed... Skipping";
-else 
-    mkdir -p $GLOGDIR
-    cd $GLOGDIR 
-    echo "INFO: Downloading and decompressing...";
-    wget http://google-glog.googlecode.com/files/glog-0.3.3.tar.gz
-    tar xvzf glog-0.3.3.tar.gz
-    cd glog-0.3.3/
-    
-    echo "INFO: Installing...";
-    ./configure && make 
-    echo "INFO: google-log: I'll need sudo for make install.." ;
-    sudo make install
-fi;
+sudo apt-get install libgoogle-glog-dev
 
 echo "-----------------------------------------";
 echo "3)  casablanca: C++ REST SDK" ;
@@ -137,8 +111,8 @@ else
     echo "INFO: Downloading git repository...";
     #echo "DISCLAIMER: If casablanca fails because it does not find libboost-*-mt.so libraries, just make\
     #symlinks to them. The suffix -mt has been removed from newer boost libraries"
-    
-    git clone https://git01.codeplex.com/casablanca .
+    cd ..
+    git clone https://git.codeplex.com/casablanca
     git checkout tags/v2.0.1
     cd $CASABLANCA/Release && mkdir build.release && cd build.release
     echo "INFO: Installing...";
