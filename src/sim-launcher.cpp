@@ -25,14 +25,14 @@ SimLauncher::~SimLauncher() {
 void SimLauncher::loadConfig(DCParser::CmdLineArgs &cmdArgs)
 {
     // Opening weather file
-    weatherfile.open(cmdArgs.weatherFile);
+    weatherfile.open(cmdArgs.weatherFile.c_str());
     if ( !weatherfile ) {
         LOG_FATAL << "[==DC SIMULATOR] Weather file " << cmdArgs.weatherFile
                   << " could not be opened. Exiting...";
     }
 
     // Opening output power file
-    powerfile.open(cmdArgs.powerOutFile);
+    powerfile.open(cmdArgs.powerOutFile.c_str());
     if ( !powerfile ){
         LOG_FATAL << "[==DC SIMULATOR] Power summary output file " << cmdArgs.powerOutFile
                   << " could not be opened. Exiting...";
@@ -41,7 +41,7 @@ void SimLauncher::loadConfig(DCParser::CmdLineArgs &cmdArgs)
     // Connecting socket
     if (cmdArgs.offline){
         LOG_INFO << "[==DC SIMULATOR] Off-line mode, will open job logger file";
-        jobfile.open(cmdArgs.jobLoggerFile);
+        jobfile.open(cmdArgs.jobLoggerFile.c_str());
         if (!jobfile){
             LOG_FATAL << "[==DC SIMULATOR] Could not open job logger file in off-line mode";
         }
