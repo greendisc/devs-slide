@@ -31,7 +31,7 @@ bool getNextJobParam(std::ifstream& paramFilePath, std::string& numCores, std::s
 	return false;
 }
 
-int main() {
+int main2() {
 	/*
 		std::getline(jobsFile, typeAsString, ';');
 		std::getline(jobsFile, timeAsString, ';');

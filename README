@@ -1,0 +1,10 @@
+Para ejecutar el simulador los argumentos son:
+OutputFile: Fichero de salida de datos.
+JobFile: Fichero de trabajos.
+WeatherFile: Fichero de temperaturas.
+ConfigurationFile: Fichero XML con la topología del data center.
+initialTime: Tiempo inicial de simulación (entero)
+
+
+Ejemplo de ejecución, desde el directorio Debug - DEVS:
+./devs-slide ../powerResultsMedDC3.txt ../test/jobsFileMedDC.txt ../test/holyoke_weather_2013.txt ../test/medDC.xml 1328227961
