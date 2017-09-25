@@ -8,12 +8,14 @@
 #include "DevsWeather.h"
 
 DevsWeather::DevsWeather(const std::string& name, const std::string& weatherFilePath)  : Atomic(name),
-																						 iStop("stop"),
+																						 oStop("stop"),
 																						 oOut("out") {
-	this->addInPort(&iStop);
+	this->addOutPort(&oStop);
 	this->addOutPort(&oOut);
 	weatherFile.open(weatherFilePath);
 	nextWeatherEntry = 0;
+	fi=false;
+	nextDiff=0.0;
 }
 
 DevsWeather::~DevsWeather() { }
@@ -22,7 +24,7 @@ void DevsWeather::initialize() {
 	// We look for the first register, and store it:
 	nextWeatherEntry = getNextEntry();
 	if(nextWeatherEntry!=0) {
-		this->holdIn("active", nextWeatherEntry->second);
+		this->holdIn("active", 0.0);
 	}
 	else {
 		this->passivate();
@@ -35,20 +37,53 @@ void DevsWeather::exit() {
 
 void DevsWeather::deltint() {
 	// Read next entry:
-	WeatherEntry* newWeatherEntry = getNextEntry();
-	if(newWeatherEntry!=0) {
-		long diff = newWeatherEntry->second - nextWeatherEntry->second;
-		if(diff<0 || diff>100000) {
-			std::cerr << newWeatherEntry->second << " - " << nextWeatherEntry->second << " = " << diff << ". Difference is less than 0 or greater than 100000, this should not happen" << std::endl;
-			this->passivate();
+/*	if(fi){
+		this->passivate();
+	}else{
+		WeatherEntry* newWeatherEntry = getNextEntry();
+		if(newWeatherEntry!=0) {
+			nextDiff = newWeatherEntry->second - nextWeatherEntry->second;
+			if(nextDiff<0 || nextDiff>100000) {
+				std::cerr << newWeatherEntry->second << " - " << nextWeatherEntry->second << " = " << diff << ". Difference is less than 0 or greater than 100000, this should not happen" << std::endl;
+				fi=true;
+				this->holdIn("active", 0.0);
+			}
+			else if(nextWeatherEntry->second==0){
+				nextWeatherEntry = newWeatherEntry;
+				this->holdIn("active", std::numeric_limits< double >::min());
+			}
+			else {
+				nextWeatherEntry = newWeatherEntry;
+				this->holdIn("active", nextDiff);
+			}
 		}
 		else {
-			nextWeatherEntry = newWeatherEntry;
-			this->holdIn("active", diff);
+			fi=true;
+			this->holdIn("active", 0.0);
 		}
-	}
-	else {
+	}*/
+	if(fi){
 		this->passivate();
+	}else{
+		if(nextDiff<0 || nextDiff>100000) {
+			std::cerr << ". Difference is less than 0 or greater than 100000, this should not happen" << std::endl;
+			fi=true;
+			this->holdIn("active", 0.0);
+		}else{
+			if(nextWeatherEntry->second == 0)
+				this->holdIn("active", std::numeric_limits< double >::min());
+			else
+			this->holdIn("active", nextDiff);
+			WeatherEntry* newWeatherEntry = getNextEntry();
+			if(newWeatherEntry != 0){
+				nextDiff = newWeatherEntry->second - nextWeatherEntry->second;
+				nextWeatherEntry = newWeatherEntry;
+			}
+			else{
+				fi=true;
+				this->holdIn("active", 0.0);
+			}
+		}
 	}
 }
 
@@ -57,9 +92,15 @@ void DevsWeather::deltext(double e) {
 }
 
 void DevsWeather::lambda() {
-	Event event = Event::makeEvent<WeatherEntry>(nextWeatherEntry);
-	oOut.addValue(event);
-	std::cout << "Output event with time = " << nextWeatherEntry->second << ", and inc temp, = " << nextWeatherEntry->tempIncrement << std::endl;
+	if(fi){
+		Event event = Event::makeEvent<bool>(new bool(fi));
+		oStop.addValue(event);
+		std::cout << "End of execution" << std::endl;
+	}else{
+		Event event = Event::makeEvent<double>(new double(nextWeatherEntry->tempIncrement));
+		oOut.addValue(event);
+		std::cout << "Output event with time = " << nextWeatherEntry->second << ", and inc temp, = " << nextWeatherEntry->tempIncrement << std::endl;
+	}
 }
 
 DevsWeather::WeatherEntry* DevsWeather::getNextEntry() {

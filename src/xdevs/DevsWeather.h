@@ -8,9 +8,9 @@
 #ifndef SRC_XDEVS_DEVSWEATHER_H_
 #define SRC_XDEVS_DEVSWEATHER_H_
 
-#include <xdevs/core/modeling/Port.h>
-#include <xdevs/core/modeling/Atomic.h>
-#include <xdevs/core/modeling/Event.h>
+#include "../../lib/xdevs/xdevs/core/modeling/Port.h"
+#include "../../lib/xdevs/xdevs/core/modeling/Atomic.h"
+#include "../../lib/xdevs/xdevs/core/modeling/Event.h"
 
 #include <iostream>
 #include <fstream>
@@ -22,7 +22,7 @@ public:
 		double tempIncrement;
 	} WeatherEntry;
 
-	Port iStop;
+	Port oStop;
 	Port oOut;
 	DevsWeather(const std::string& name, const std::string& weatherFilePath);
 	virtual ~DevsWeather();
@@ -34,9 +34,11 @@ public:
 	virtual void deltext(double e);
 	virtual void lambda();
 protected:
+	bool fi;
 	std::ifstream weatherFile;
 	WeatherEntry* nextWeatherEntry;
 	WeatherEntry* getNextEntry();
+	double nextDiff;
 };
 
 #endif /* SRC_XDEVS_DEVSWEATHER_H_ */

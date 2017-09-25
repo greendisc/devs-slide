@@ -11,7 +11,7 @@
 		<IRC>APC</IRC>
 		<IT>
 			<RackIRCCouple>
-				<name>rc1</name>
+				<name>IRC1</name>
 				<equipment>
 					<Rack>
 						<name>rack1</name>
@@ -98,7 +98,7 @@
 		</IT>
 		<IT>
 			<RackIRCCouple>
-				<name>rc2</name>
+				<name>IRC2</name>
 				<equipment>
 					<Rack>
 						<name>rack3</name>
@@ -107,8 +107,6 @@
 						<Servers>s38</Servers>
 						<Servers>dell</Servers>
 						<Servers>s39</Servers>
-						<Servers>dell</Servers>
-						<Servers>s40</Servers>
 						<Servers>dell</Servers>
 						<Servers>s40</Servers>
 						<Servers>dell</Servers>
@@ -187,7 +185,7 @@
 		</IT>
 		<IT>
 			<RackIRCCouple>
-				<name>rc3</name>
+				<name>IRC3</name>
 				<equipment>
 					<Rack>
 						<name>rack5</name>
@@ -274,7 +272,7 @@
 		</IT>
 		<IT>
 			<RackIRCCouple>
-				<name>rc4</name>
+				<name>IRC4</name>
 				<equipment>
 					<Rack>
 						<name>rack7</name>
@@ -361,7 +359,7 @@
 		</IT>
 		<IT>
 			<RackIRCCouple>
-				<name>rc5</name>
+				<name>IRC5</name>
 				<equipment>
 					<Rack>
 						<name>rack9</name>
@@ -448,7 +446,7 @@
 		</IT>
 		<IT>
 			<RackIRCCouple>
-				<name>rc6</name>
+				<name>IRC6</name>
 				<equipment>
 					<Rack>
 						<name>rack11</name>
@@ -535,7 +533,7 @@
 		</IT>
 		<IT>
 			<RackIRCCouple>
-				<name>rc7</name>
+				<name>IRC7</name>
 				<equipment>
 					<Rack>
 						<name>rack13</name>
@@ -622,7 +620,7 @@
 		</IT>
 		<IT>
 			<RackIRCCouple>
-				<name>rc8</name>
+				<name>IRC8</name>
 				<equipment>
 					<Rack>
 						<name>rack15</name>
@@ -709,7 +707,7 @@
 		</IT>
 		<IT>
 			<RackIRCCouple>
-				<name>rc9</name>
+				<name>IRC9</name>
 				<equipment>
 					<Rack>
 						<name>rack17</name>
@@ -794,25 +792,24 @@
 				</equipment>
 			</RackIRCCouple>
 		</IT>
-	</DataCenter>
 	<RoomParams>
-		<IRCAirTemp>rc1</IRCAirTemp>
+		<IRCAirTemp>IRC1</IRCAirTemp>
 		<IRCAirTemp>30</IRCAirTemp>
-		<IRCAirTemp>rc2</IRCAirTemp>
+		<IRCAirTemp>IRC2</IRCAirTemp>
 		<IRCAirTemp>30</IRCAirTemp>
-		<IRCAirTemp>rc3</IRCAirTemp>
+		<IRCAirTemp>IRC3</IRCAirTemp>
 		<IRCAirTemp>30</IRCAirTemp>
-		<IRCAirTemp>rc4</IRCAirTemp>
+		<IRCAirTemp>IRC4</IRCAirTemp>
 		<IRCAirTemp>30</IRCAirTemp>
-		<IRCAirTemp>rc5</IRCAirTemp>
+		<IRCAirTemp>IRC5</IRCAirTemp>
 		<IRCAirTemp>30</IRCAirTemp>
-		<IRCAirTemp>rc6</IRCAirTemp>
+		<IRCAirTemp>IRC6</IRCAirTemp>
 		<IRCAirTemp>30</IRCAirTemp>
-		<IRCAirTemp>rc7</IRCAirTemp>
+		<IRCAirTemp>IRC7</IRCAirTemp>
 		<IRCAirTemp>30</IRCAirTemp>
-		<IRCAirTemp>rc8</IRCAirTemp>
+		<IRCAirTemp>IRC8</IRCAirTemp>
 		<IRCAirTemp>30</IRCAirTemp>
-		<IRCAirTemp>rc9</IRCAirTemp>
+		<IRCAirTemp>IRC9</IRCAirTemp>
 		<IRCAirTemp>30</IRCAirTemp>
 		<ServerFanSpeed>rack1</ServerFanSpeed>
 		<ServerFanSpeed>s1</ServerFanSpeed>
@@ -3409,4 +3406,5 @@
 		<ServerPower>30</ServerPower>
 		<ServerPower>1</ServerPower>
 	</Workload>
+	</DataCenter>
 	
