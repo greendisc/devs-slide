@@ -8,15 +8,8 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include src/xdevs-temp/subdir.mk
 -include src/xdevs/subdir.mk
--include src/weather/subdir.mk
--include src/room/subdir.mk
--include src/policy/subdir.mk
--include src/parser/subdir.mk
--include src/cooling/subdir.mk
--include src/alloc/subdir.mk
--include src/subdir.mk
+-include script/subdir.mk
 -include subdir.mk
 -include objects.mk
 

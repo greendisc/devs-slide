@@ -45,7 +45,7 @@ all: devs-slide
 devs-slide: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -L"/home/jlrisco/TrabajoExtra/GIT/jlrisco@github.com/devs-slide/lib/xdevs" -o "devs-slide" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L"/home/jlrisco/TrabajoExtra/GIT/greendisc@github.com/devs-slide/lib/xdevs" -o "devs-slide" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

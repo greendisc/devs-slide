@@ -23,13 +23,6 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-src/xdevs-temp \
 src/xdevs \
-src/weather \
-src \
-src/room \
-src/policy \
-src/parser \
-src/cooling \
-src/alloc \
+script \
 
